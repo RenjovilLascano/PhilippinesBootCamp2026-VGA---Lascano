@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dinorobong Tubo Dance Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky: #1b2233; --sky-2: #242d44; --line: #34405e;
+  --text: #f2ebe0; --muted: #a9b0c4;
+  --bulb: #ffb547; --bulb-dim: #4a4030;
+  --lane-0: #e4483f; --lane-1: #ffb547; --lane-2: #5b8def;
+  --good: #7fe0a1; --bad: #ff6b6b;
+  --display: "Bungee", "Impact", "Arial Black", system-ui, sans-serif;
+  --body: "Bricolage Grotesque", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --sky: #dde3ee; --sky-2: #ffffff; --line: #b9c3d8;
+    --text: #1b2233; --muted: #56607a;
+    --bulb: #e89410; --bulb-dim: #cfc6b4;
+    --good: #1f9a52; --bad: #d23b3b;
+    --lane-0: #d23a31; --lane-1: #e08a00; --lane-2: #3f73d6;
+    color-scheme: light;
+  }
+}
+:root[data-theme="dark"] {
+  --sky: #1b2233; --sky-2: #242d44; --line: #34405e;
+  --text: #f2ebe0; --muted: #a9b0c4; --bulb: #ffb547; --bulb-dim: #4a4030;
+  --good: #7fe0a1; --bad: #ff6b6b; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--sky); color: var(--text); font-family: var(--body);
+  overflow: hidden; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--bulb); outline-offset: 3px; }
+
+/* ---------- string of bulbs: one per photo ---------- */
+.bulbs {
+  position: relative; height: 44px; display: grid; grid-template-columns: repeat(32, 1fr);
+  align-items: start; padding: 0 12px;
+}
+.bulbs::before {               /* the wire */
+  content: ""; position: absolute; left: 0; right: 0; top: 6px; height: 16px;
+  border-top: 2px solid var(--line); border-radius: 0 0 50% 50% / 0 0 100% 100%;
+}
+.bulb {
+  position: relative; justify-self: center; width: 11px; height: 15px; margin-top: 10px;
+  border-radius: 50% 50% 45% 45%; background: var(--bulb-dim);
+}
+.bulb.bar { margin-top: 13px; }
+.bulb.on { background: var(--bulb); box-shadow: 0 0 10px 3px color-mix(in srgb, var(--bulb) 60%, transparent); }
+.bulb.photo::after {           /* where the dancers are */
+  content: ""; position: absolute; inset: -5px; border-radius: 50%; border: 2px solid var(--text);
+}
+
+/* ---------- layout ---------- */
+.app { height: 100dvh; display: grid; grid-template-rows: auto 1fr; }
+.screen { min-height: 0; }
+.hidden { display: none !important; }
+
+/* title screen */
+.title-screen {
+  display: grid; grid-template-columns: minmax(0, auto) minmax(0, 34rem); gap: clamp(1rem, 4vw, 3.5rem);
+  align-items: center; justify-content: center; padding: 1rem clamp(1rem, 4vw, 3rem) 1.5rem; height: 100%;
+}
+.poster {
+  height: min(78dvh, 720px); aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden;
+  background: #000; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,.45);
+}
+.poster video, .poster canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+h1 {
+  font-family: var(--display); font-weight: 400; margin: 0 0 .9rem;
+  font-size: clamp(2.2rem, 5.4vw, 4.4rem); line-height: .95; letter-spacing: .01em;
+}
+h1 span { display: block; }
+h1 span:nth-child(1) { color: var(--lane-0); }
+h1 span:nth-child(2) { color: var(--lane-1); }
+h1 span:nth-child(3) { color: var(--lane-2); }
+h1 span:nth-child(4) { font-size: .5em; color: var(--text); margin-top: .35em; }
+.lede { font-size: 1.12rem; line-height: 1.55; max-width: 34rem; margin: 0 0 1.4rem; color: var(--text); }
+.rules { margin: 0 0 1.6rem; padding: 0; list-style: none; display: grid; gap: .55rem; color: var(--muted); line-height: 1.45; }
+.rules b { color: var(--text); font-weight: 600; }
+.keys { display: inline-flex; gap: .3rem; }
+kbd {
+  font-family: var(--body); font-weight: 800; font-size: .85rem; min-width: 1.8rem; text-align: center;
+  padding: .15rem .45rem; border-radius: 6px; border: 2px solid var(--line); background: var(--sky-2); color: var(--text);
+}
+.start {
+  font-family: var(--display); font-size: 1.35rem; padding: .85rem 2.1rem; border: 0; border-radius: 999px;
+  background: var(--bulb); color: #1b2233; cursor: pointer;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--bulb) 25%, transparent);
+}
+.start:disabled { opacity: .5; cursor: progress; }
+.start:hover:not(:disabled) { filter: brightness(1.07); }
+.settings { margin-top: 1.3rem; display: flex; gap: .8rem; align-items: center; color: var(--muted); font-size: .95rem; flex-wrap: wrap; }
+.settings input { accent-color: var(--bulb); width: 11rem; }
+.status { margin-top: .9rem; min-height: 1.4em; color: var(--muted); font-size: .95rem; }
+
+/* game screen */
+.game {
+  display: grid; grid-template-columns: minmax(0, auto) minmax(15rem, 26rem) minmax(10rem, 14rem);
+  gap: clamp(.75rem, 2.5vw, 2rem); justify-content: center; align-items: stretch;
+  padding: .75rem clamp(.75rem, 3vw, 2rem) 1rem; height: 100%;
+}
+.stage { position: relative; height: 100%; aspect-ratio: 9 / 16; max-height: calc(100dvh - 80px); border-radius: 16px; overflow: hidden; background: #000; }
+.stage canvas { width: 100%; height: 100%; display: block; object-fit: cover; }
+.flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .25s ease-out; }
+.sync {
+  position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+  font-weight: 800; font-size: .95rem; padding: .35rem .85rem; border-radius: 999px;
+  background: rgba(20, 26, 40, .78); color: #f2ebe0; white-space: nowrap;
+}
+.sync.behind { color: #fff; background: rgba(170, 20, 28, .88); }
+.highway { position: relative; display: grid; grid-template-rows: 1fr auto; min-height: 0; gap: .6rem; }
+.highway canvas { width: 100%; height: 100%; display: block; border-radius: 14px; background: var(--sky-2); }
+.pads { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+.pad {
+  border: 0; border-radius: 12px; padding: .85rem 0 .7rem; cursor: pointer; font-weight: 800;
+  display: grid; justify-items: center; gap: .15rem; color: #1b2233; user-select: none; touch-action: none;
+}
+.pad small { font-weight: 600; font-size: .78rem; opacity: .75; }
+.pad[data-lane="0"] { background: var(--lane-0); }
+.pad[data-lane="1"] { background: var(--lane-1); }
+.pad[data-lane="2"] { background: var(--lane-2); }
+.pad.down { transform: translateY(2px); filter: brightness(1.2); }
+.side { display: flex; flex-direction: column; gap: 1.1rem; justify-content: center; }
+.stat .n { font-family: var(--display); font-size: clamp(1.8rem, 3.2vw, 2.6rem); line-height: 1; }
+.stat .l { color: var(--muted); font-size: .92rem; margin-top: .25rem; }
+.judge { font-family: var(--display); font-size: 1.6rem; min-height: 2rem; }
+.judge.hit { color: var(--good); } .judge.miss { color: var(--bad); }
+.ghost {
+  align-self: flex-start; border: 2px solid var(--line); background: transparent; border-radius: 999px;
+  padding: .45rem 1rem; cursor: pointer; font-weight: 600;
+}
+.overlay {
+  position: fixed; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--sky) 82%, transparent);
+  z-index: 5;
+}
+.card { background: var(--sky-2); padding: 1.6rem 1.8rem; border-radius: 18px; display: grid; gap: .9rem; min-width: 16rem; text-align: center; }
+.card h2 { font-family: var(--display); font-weight: 400; margin: 0; font-size: 1.8rem; }
+.card .row { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; }
+.count { font-family: var(--display); font-size: clamp(3rem, 12vw, 7rem); color: var(--bulb); }
+
+/* narrow screens: photo on top, lanes overlaid on its lower half */
+@media (max-width: 860px) {
+  .title-screen { grid-template-columns: 1fr; align-content: start; overflow-y: auto; }
+  .poster { height: 38dvh; justify-self: center; }
+  h1 { font-size: clamp(1.9rem, 9vw, 3rem); }
+  .game { grid-template-columns: 1fr; grid-template-rows: auto 1fr; padding: .5rem; gap: .5rem; }
+  .side {
+    flex-direction: row; justify-content: space-between; align-items: center; order: -1; gap: .5rem;
+    position: relative; z-index: 2; padding: .45rem .7rem; border-radius: 12px;
+    background: color-mix(in srgb, var(--sky-2) 88%, transparent);
+  }
+  .side .stat .n { font-size: 1.35rem; } .side .stat .l { font-size: .75rem; margin-top: .1rem; }
+  .side .judge { font-size: 1rem; min-height: 1.2rem; flex: 1 1 5.5rem; }
+  .side .ghost { padding: .35rem .7rem; font-size: .85rem; align-self: center; }
+  .side .ghost .hint { display: none; }
+  .sync { top: 4.3rem; bottom: auto; z-index: 3; font-size: .85rem; }
+  .stage { position: absolute; inset: 0; margin: auto; max-height: none; height: 100%; aspect-ratio: auto; border-radius: 0; overflow: visible; }
+  .stage canvas { opacity: .9; }
+  .game { position: relative; }
+  .highway { position: relative; z-index: 1; }
+  .highway canvas { background: color-mix(in srgb, var(--sky-2) 55%, transparent); }
+  .bulbs { height: 34px; padding: 0 6px; } .bulb { width: 7px; height: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bulb.on { box-shadow: none; } .flash { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="bulbs" id="bulbs" aria-hidden="true"></div>
+
+  <!-- ================= title ================= -->
+  <section class="screen title-screen" id="title">
+    <div class="poster" id="poster">
+      <video id="video" muted loop playsinline autoplay preload="auto"></video>
+    </div>
+    <div>
+      <h1><span>Dinorobong</span><span>Tubo</span><span>Dance</span><span>Project</span></h1>
+      <p class="lede">Keep the dancers moving. Tap each note in its lane as it reaches the line, and the dancers follow the music for as long as the note lasts.</p>
+      <ul class="rules">
+        <li><b>Lanes:</b> <span class="keys"><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span> or <span class="keys"><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd></span>, or tap the pads.</li>
+        <li><b>Longer notes, longer dance:</b> each note shows how far the dancers move. An eighth note is +1 photo, a quarter note +2, a half note +4, a whole note +8.</li>
+        <li><b>Miss one and the dance breaks.</b> The stage turns red until your next hit, which puts the dancers right back in step with the music.</li>
+      </ul>
+      <button class="start" id="startBtn" disabled>Loading…</button>
+      <div class="settings">
+        <label for="offset">Audio delay</label>
+        <input id="offset" type="range" min="-150" max="150" step="5" value="0">
+        <output id="offsetOut">0 ms</output>
+      </div>
+      <div class="status" id="status">Preparing the music and photos…</div>
+    </div>
+  </section>
+
+  <!-- ================= game ================= -->
+  <section class="screen game hidden" id="game">
+    <div class="stage">
+      <canvas id="photo" width="450" height="800" aria-label="Dancers"></canvas>
+      <div class="flash" id="flash"></div>
+      <div class="sync" id="sync">In step with the music</div>
+    </div>
+    <div class="highway">
+      <canvas id="lanes" aria-label="Notes"></canvas>
+      <div class="pads">
+        <button class="pad" data-lane="0">Left<small>A / ←</small></button>
+        <button class="pad" data-lane="1">Middle<small>S / ↓</small></button>
+        <button class="pad" data-lane="2">Right<small>D / →</small></button>
+      </div>
+    </div>
+    <aside class="side">
+      <div class="judge" id="judge" aria-live="polite"></div>
+      <div class="stat"><div class="n" id="combo">0</div><div class="l">combo</div></div>
+      <div class="stat"><div class="n" id="hits">0</div><div class="l">notes hit</div></div>
+      <div class="stat"><div class="n" id="acc">–</div><div class="l">accuracy</div></div>
+      <button class="ghost" id="pauseBtn">Pause<span class="hint"> (Esc)</span></button>
+    </aside>
+  </section>
+</div>
+
+<div class="overlay hidden" id="countdown"><div class="count" id="countNum">3</div></div>
+<div class="overlay hidden" id="pause">
+  <div class="card">
+    <h2>Paused</h2>
+    <div class="row">
+      <button class="start" id="resumeBtn">Resume</button>
+    </div>
+    <div class="row">
+      <button class="ghost" id="restartBtn">Restart</button>
+      <button class="ghost" id="quitBtn">Back to title</button>
+    </div>
+    <p style="margin:0;color:var(--muted);font-size:.9rem">Best combo <b id="bestCombo">0</b></p>
+  </div>
+</div>
+
+<script>
+/*__CHIP__*/
+</script>
+<script>
+const ASSETS = /*__ASSETS__*/;
+const $ = id => document.getElementById(id);
+const LANE_COLORS = ['--lane-0', '--lane-1', '--lane-2'].map(v => getComputedStyle(document.documentElement).getPropertyValue(v).trim());
+
+// ---------- bulbs ----------
+const bulbs = [];
+for (let i = 0; i < 32; i++) {
+  const b = document.createElement('div'); b.className = 'bulb' + (i % 8 === 0 ? ' bar' : '');
+  $('bulbs').appendChild(b); bulbs.push(b);
+}
+function setBulbs(songIdx, photoIdx) {
+  for (let i = 0; i < 32; i++) {
+    bulbs[i].classList.toggle('on', i === songIdx);
+    bulbs[i].classList.toggle('photo', i === photoIdx);
+  }
+}
+
+// ---------- load assets ----------
+const frames = []; const errImg = new Image();
+let audioBuf = null, ctx = null;
+function b64ToBuf(b64) { const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u.buffer; }
+async function loadAll() {
+  await Promise.all(ASSETS.frames.map((src, i) => new Promise((res, rej) => {
+    const im = new Image(); im.onload = () => res(); im.onerror = rej; im.src = src; frames[i] = im;
+  })).concat(new Promise((res, rej) => { errImg.onload = res; errImg.onerror = rej; errImg.src = ASSETS.err; })));
+  ctx = new (window.AudioContext || window.webkitAudioContext)();
+  audioBuf = await ctx.decodeAudioData(b64ToBuf(ASSETS.audio));
+}
+
+// title poster: the real video, or the photos if the video can't play here
+const video = $('video');
+video.poster = ASSETS.frames[0];
+let posterFallback = null;
+function startPosterFallback() {
+  if (posterFallback) return;
+  video.remove();
+  const c = document.createElement('canvas'); c.width = 450; c.height = 800; $('poster').appendChild(c);
+  const g = c.getContext('2d'); let i = 0;
+  posterFallback = setInterval(() => { if (frames[i]?.complete) g.drawImage(frames[i], 0, 0, 450, 800); i = (i + 1) % 32; }, 346);
+}
+video.addEventListener('error', startPosterFallback);
+try {
+  for (const [key, type] of [['webm', 'video/webm'], ['mp4', 'video/mp4']]) {
+    const so = document.createElement('source'); so.src = ASSETS[key]; so.type = type; video.appendChild(so);
+  }
+  video.querySelector('source:last-child').addEventListener('error', startPosterFallback);
+  video.load(); video.play().catch(() => {});
+} catch (e) { startPosterFallback(); }
+setTimeout(() => { if (video.isConnected && (video.readyState < 2 || video.paused)) startPosterFallback(); }, 2500);
+// title bulbs follow the video loop
+setInterval(() => {
+  if (!$('title').classList.contains('hidden')) {
+    const d = video.isConnected && video.duration ? (video.currentTime / video.duration) : ((performance.now() / 346.443) % 32) / 32;
+    const k = Math.floor(d * 32) % 32; setBulbs(k, k);
+  }
+}, 60);
+
+// ---------- settings ----------
+let offsetMs = 0;
+try { offsetMs = Number(localStorage.getItem('tubo-offset') || 0) || 0; } catch (e) {}
+$('offset').value = offsetMs; $('offsetOut').textContent = offsetMs + ' ms';
+$('offset').addEventListener('input', e => {
+  offsetMs = Number(e.target.value); $('offsetOut').textContent = offsetMs + ' ms';
+  try { localStorage.setItem('tubo-offset', String(offsetMs)); } catch (e) {}
+});
+
+// ---------- game state ----------
+let chip = null, notes = [], judged = new Map(), src = null, gen = null, firstIdx = 0;
+let startAt = 0, rawPaused = 0, pausedAt = null, running = false, eighth = 0, raf = 0;
+const LOOK = 10;                // eighths visible above the hit line
+
+function songTime() {           // seconds since the song started, corrected for output delay
+  const lat = (ctx.outputLatency || 0) + (ctx.baseLatency || 0);
+  return ctx.currentTime - startAt - lat - offsetMs / 1000;
+}
+function syncChip() {           // feed ticks and phase to the chip model up to "now"
+  const t = songTime(); if (t < 0) return t / eighth;
+  const pos = t / eighth, abs = Math.floor(pos), ph = Math.min(PH - 1, Math.floor((pos - abs) * PH));
+  while (chip.abs < abs) chip.tick();
+  chip.phase(ph);
+  collectEvents();
+  return pos;
+}
+function collectEvents() {
+  while (chip.events.length) {
+    const e = chip.events.shift();
+    judged.set(e.note.start, e.type);
+    showJudge(e);
+  }
+}
+function showJudge(e) {
+  const j = $('judge');
+  if (e.type === 'hit') {
+    const a = Math.abs(e.off);
+    j.textContent = a <= 1 ? 'Perfect' : a <= 2 ? 'Great' : 'Good'; j.className = 'judge hit';
+    flash(LANE_COLORS[e.note.lane]);
+  } else { j.textContent = e.type === 'wrong' ? 'Wrong lane' : 'Miss'; j.className = 'judge miss'; }
+  $('combo').textContent = chip.combo; $('hits').textContent = chip.hits;
+  const tot = chip.hits + chip.misses; $('acc').textContent = tot ? Math.round(100 * chip.hits / tot) + '%' : '–';
+}
+function flash(color) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const f = $('flash'); f.style.transition = 'none'; f.style.background = `radial-gradient(circle at 50% 90%, ${color}55, transparent 60%)`;
+  f.style.opacity = 1; requestAnimationFrame(() => { f.style.transition = ''; f.style.opacity = 0; });
+}
+
+async function startGame() {
+  if (ctx.state === 'suspended') await ctx.resume();
+  const seed = (Math.floor(Math.random() * 0xFFFE) + 1) & 0xFFFF;
+  chip = new Chip(seed); judged = new Map(); notes = []; firstIdx = 0;
+  gen = { rng: seed, start: COUNT_IN }; extendNotes(64);
+  eighth = audioBuf.duration / 32;
+  $('title').classList.add('hidden'); $('game').classList.remove('hidden');
+  ['combo', 'hits'].forEach(id => $(id).textContent = '0'); $('acc').textContent = '–'; $('judge').textContent = '';
+  if (posterFallback) { clearInterval(posterFallback); posterFallback = null; }
+  video.isConnected && video.pause();
+  sizeLanes(); lastFrame = -1;
+  // count-in overlay while the first bar plays (dancers move freely during bar 1)
+  src = ctx.createBufferSource(); src.buffer = audioBuf; src.loop = true; src.connect(ctx.destination);
+  startAt = ctx.currentTime + 0.15; src.start(startAt);
+  running = true; pausedAt = null;
+  cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
+}
+function extendNotes(n) {       // same generator as the chip, run ahead for display
+  for (let i = 0; i < n; i++) { const g = nextNote(gen.rng, gen.start); gen.rng = g.rng; gen.start += g.note.len; notes.push(g.note); }
+}
+function stopAudio() { try { src && src.stop(); } catch (e) {} src = null; }
+function pauseGame() {
+  if (!running) return; running = false;
+  pausedAt = songTime(); rawPaused = Math.max(0, ctx.currentTime - startAt); stopAudio(); cancelAnimationFrame(raf);
+  $('bestCombo').textContent = chip.best; $('pause').classList.remove('hidden'); $('resumeBtn').focus();
+}
+function resumeGame() {
+  $('pause').classList.add('hidden');
+  const cd = $('countdown'); cd.classList.remove('hidden'); let n = 3; $('countNum').textContent = n;
+  const t = setInterval(() => {
+    n--; if (n > 0) { $('countNum').textContent = n; return; }
+    clearInterval(t); cd.classList.add('hidden');
+    src = ctx.createBufferSource(); src.buffer = audioBuf; src.loop = true; src.connect(ctx.destination);
+    const when = ctx.currentTime + 0.05;
+    src.start(when, rawPaused % audioBuf.duration);
+    startAt = when - rawPaused;           // song time continues exactly where it stopped
+    running = true; raf = requestAnimationFrame(loop);
+  }, 500);
+}
+function quitGame() {
+  running = false; stopAudio(); cancelAnimationFrame(raf);
+  $('pause').classList.add('hidden'); $('game').classList.add('hidden'); $('title').classList.remove('hidden');
+  if (video.isConnected) video.play().catch(() => {}); else startPosterFallback();
+  $('startBtn').focus();
+}
+
+// ---------- input ----------
+const KEYMAP = { a: 0, arrowleft: 0, j: 0, s: 1, arrowdown: 1, k: 1, d: 2, arrowright: 2, l: 2 };
+function press(lane) {
+  if (!running) return;
+  const pos = syncChip(); if (pos < 0) return;
+  const r = chip.press(lane); collectEvents();
+  const pad = document.querySelector(`.pad[data-lane="${lane}"]`); pad.classList.add('down');
+  setTimeout(() => pad.classList.remove('down'), 90);
+}
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k === 'escape' || k === 'p') { if (running) pauseGame(); else if (!$('pause').classList.contains('hidden')) resumeGame(); return; }
+  if (e.repeat) return;
+  if (k in KEYMAP && running) { e.preventDefault(); press(KEYMAP[k]); }
+});
+document.querySelectorAll('.pad').forEach(p => p.addEventListener('pointerdown', e => { e.preventDefault(); press(Number(p.dataset.lane)); }));
+$('startBtn').addEventListener('click', startGame);
+$('pauseBtn').addEventListener('click', pauseGame);
+$('resumeBtn').addEventListener('click', resumeGame);
+$('restartBtn').addEventListener('click', () => { $('pause').classList.add('hidden'); startGame(); });
+$('quitBtn').addEventListener('click', quitGame);
+document.addEventListener('visibilitychange', () => { if (document.hidden && running) pauseGame(); });
+
+// ---------- drawing ----------
+const pc = $('photo').getContext('2d');
+const lc = $('lanes'); const lg = lc.getContext('2d');
+let W = 0, H = 0, dpr = 1;
+let themeColors = {};
+function readTheme() {
+  const css = getComputedStyle(document.documentElement);
+  themeColors = { line: css.getPropertyValue('--line').trim(), text: css.getPropertyValue('--text').trim(), muted: css.getPropertyValue('--muted').trim() };
+}
+matchMedia('(prefers-color-scheme: light)').addEventListener?.('change', readTheme);
+function sizeLanes() {
+  readTheme();
+  dpr = Math.min(2, devicePixelRatio || 1);
+  const r = lc.getBoundingClientRect(); W = Math.max(1, r.width); H = Math.max(1, r.height);
+  lc.width = W * dpr; lc.height = H * dpr; lg.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+addEventListener('resize', () => running && sizeLanes());
+let lastFrame = -1;
+const NOTE_NAME = { 1: '+1', 2: '+2', 4: '+4', 8: '+8' };
+
+function loop() {
+  if (!running) return;
+  const pos = syncChip();
+  // photo
+  const shown = chip.err ? 'err' : chip.frame;           // miss screen until the next correct press
+  if (shown !== lastFrame) { pc.drawImage(chip.err ? errImg : frames[chip.frame], 0, 0, 450, 800); lastFrame = shown; }
+  const songIdx = pos < 0 ? 0 : Math.floor(pos) % 32;
+  setBulbs(songIdx, chip.frame);
+  const behind = pos < 0 ? 0 : Math.max(0, Math.floor(pos) - (chip.playEnd - 1));
+  const s = $('sync');
+  if (pos >= 0 && pos < COUNT_IN) { s.textContent = 'Get ready: notes start after this bar'; s.classList.remove('behind'); }
+  else if (chip.err) { s.textContent = 'Missed! Hit the next note to get back in step'; s.classList.add('behind'); }
+  else if (behind <= 0) { s.textContent = 'In step with the music'; s.classList.remove('behind'); }
+  else { s.textContent = `Frozen: ${behind} step${behind === 1 ? '' : 's'} behind the music`; s.classList.add('behind'); }
+  drawLanes(pos);
+  raf = requestAnimationFrame(loop);
+}
+
+function drawLanes(pos) {
+  const { line, text, muted } = themeColors;
+  lg.clearRect(0, 0, W, H);
+  const lw = W / 3, hitY = H - 44, pxE = (hitY - 10) / LOOK;
+  // lane dividers + beat lines
+  lg.strokeStyle = line; lg.lineWidth = 1;
+  for (let i = 1; i < 3; i++) { lg.beginPath(); lg.moveTo(i * lw, 0); lg.lineTo(i * lw, H); lg.stroke(); }
+  const first = Math.ceil(pos - 2);
+  for (let e = first; e < pos + LOOK + 1; e++) {
+    if (e % 2) continue;
+    const y = hitY - (e - pos) * pxE;
+    lg.globalAlpha = e % 8 === 0 ? .9 : .35; lg.beginPath(); lg.moveTo(0, y); lg.lineTo(W, y); lg.stroke();
+  }
+  lg.globalAlpha = 1;
+  // hit line
+  lg.fillStyle = text; lg.fillRect(0, hitY - 2, W, 4);
+  // notes
+  while (notes.length - firstIdx < 40) extendNotes(64);
+  while (firstIdx < notes.length && notes[firstIdx].start + notes[firstIdx].len < pos - 3) firstIdx++;
+  for (let i = firstIdx; i < notes.length; i++) {
+    const n = notes[i];
+    if (n.start + n.len < pos - 2) continue;
+    if (n.start > pos + LOOK + 1) break;
+    const st = judged.get(n.start);
+    const yHead = hitY - (n.start - pos) * pxE, yTail = hitY - (n.start + n.len - 0.2 - pos) * pxE;
+    const x = n.lane * lw + lw * .14, w = lw * .72, c = LANE_COLORS[n.lane];
+    // tail: how far the dancers will move
+    lg.globalAlpha = st === 'hit' ? .18 : st ? .1 : .32;
+    lg.fillStyle = st && st !== 'hit' ? muted : c;
+    roundRect(x + w * .3, yTail, w * .4, yHead - yTail, 6); lg.fill();
+    if (st === 'hit') { lg.globalAlpha = 1; continue; }
+    // head
+    lg.globalAlpha = st ? .35 : 1; lg.fillStyle = st ? muted : c;
+    roundRect(x, yHead - 13, w, 26, 13); lg.fill();
+    lg.fillStyle = '#1b2233'; lg.font = '800 16px "Bricolage Grotesque", system-ui'; lg.textAlign = 'center'; lg.textBaseline = 'middle';
+    lg.fillText(NOTE_NAME[n.len], x + w / 2, yHead + 1);
+    lg.globalAlpha = 1;
+  }
+}
+function roundRect(x, y, w, h, r) {
+  r = Math.min(r, Math.abs(h) / 2, w / 2);
+  lg.beginPath(); lg.moveTo(x + r, y); lg.arcTo(x + w, y, x + w, y + h, r); lg.arcTo(x + w, y + h, x, y + h, r);
+  lg.arcTo(x, y + h, x, y, r); lg.arcTo(x, y, x + w, y, r); lg.closePath();
+}
+
+// ---------- boot ----------
+loadAll().then(() => {
+  $('startBtn').disabled = false; $('startBtn').textContent = 'Start dancing';
+  $('status').textContent = 'Wear headphones for the tightest timing. If hits feel late or early, adjust the audio delay.';
+  pc.drawImage(frames[0], 0, 0, 450, 800);
+}).catch(err => {
+  $('status').textContent = 'The music or photos could not load in this browser. Try reloading the page, or open it in Chrome, Edge, Firefox or Safari.';
+  console.error(err);
+});
+</script>
+</body>
+</html>
