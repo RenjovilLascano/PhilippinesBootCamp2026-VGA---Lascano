@@ -11,7 +11,7 @@
 //   notes             random stream of notes (lane + length)
 //   judge             hit / miss decisions
 //   dance             dance frame 0..31 and the miss screen
-//   stats             score, combo, best combo, misses
+//   stats             score, combo, best combo
 //
 // Game step: at the end of the last visible line, while the beam is outside
 // the picture, the game takes one step in three clocks:
@@ -22,7 +22,7 @@
 // Test mode (for simulation and bring-up): hold LEFT, MIDDLE, RIGHT and START
 // (ui[3:0] = 1111) while reset is released. Then
 //   * the game steps once per scanline instead of once per frame (525x faster)
-//   * uo_out shows internal state instead of VGA; ui[7:4] picks the byte
+//   * uo_out shows internal state instead of VGA; ui[6:4] picks the byte
 //     (see the debug table at the bottom of this file).
 
 `default_nettype none
@@ -100,7 +100,7 @@ module tt_um_renjovillascano_tubo_dance (
   wire [15:0] seed = {vpos[5:0], hpos[9:1], 1'b1};
 
   // ---------------- song clock ----------------
-  wire [15:0] acc;
+  wire [11:0] acc;
   wire [ 4:0] pos;
   wire        wrap;
 
@@ -114,7 +114,7 @@ module tt_um_renjovillascano_tubo_dance (
       .wrap   (wrap)
   );
 
-  wire [3:0] phase = acc[15:12];
+  wire [3:0] phase = acc[11:8];
 
   // ---------------- notes and judging ----------------
   wire [15:0] rng;
@@ -175,7 +175,7 @@ module tt_um_renjovillascano_tubo_dance (
   );
 
   wire [15:0] score;
-  wire [ 7:0] combo, best, misses;
+  wire [ 7:0] combo, best;
 
   stats counters (
       .clk     (clk),
@@ -186,31 +186,28 @@ module tt_um_renjovillascano_tubo_dance (
       .note_len(note_len),
       .score   (score),
       .combo   (combo),
-      .best    (best),
-      .misses  (misses)
+      .best    (best)
   );
 
   // ---------------- outputs ----------------
   // TinyVGA Pmod: {HSYNC, B0, G0, R0, VSYNC, B1, G1, R1}
   wire [7:0] vga_out = {hsync, 3'b000, vsync, 3'b000};
 
-  // Debug bytes, test mode only (ui[7:4] selects):
+  // Debug bytes, test mode only (ui[6:4] selects):
   //   0 {err, playing, follow, frame[4:0]}    1 {pos[4:0], result[2:0]}
   //   2 {note_start[4:0], 1'b0, note_lane}     3 {phase[3:0], 2'b0, note_len}
-  //   4 score[7:0]  5 score[15:8]  6 combo  7 best  8 misses   (BCD)
+  //   4 score[7:0]  5 score[15:8]  6 combo  7 best   (BCD)
   reg [7:0] debug_out;
   always @(*) begin
-    case (ui_in[7:4])
-      4'd0:    debug_out = {err, playing, follow, frame};
-      4'd1:    debug_out = {pos, result};
-      4'd2:    debug_out = {note_start, 1'b0, note_lane};
-      4'd3:    debug_out = {phase, 2'b00, note_len};
-      4'd4:    debug_out = score[7:0];
-      4'd5:    debug_out = score[15:8];
-      4'd6:    debug_out = combo;
-      4'd7:    debug_out = best;
-      4'd8:    debug_out = misses;
-      default: debug_out = 8'h00;
+    case (ui_in[6:4])
+      3'd0:    debug_out = {err, playing, follow, frame};
+      3'd1:    debug_out = {pos, result};
+      3'd2:    debug_out = {note_start, 1'b0, note_lane};
+      3'd3:    debug_out = {phase, 2'b00, note_len};
+      3'd4:    debug_out = score[7:0];
+      3'd5:    debug_out = score[15:8];
+      3'd6:    debug_out = combo;
+      default: debug_out = best;
     endcase
   end
 
@@ -218,6 +215,6 @@ module tt_um_renjovillascano_tubo_dance (
   assign uio_out = 8'h00;
   assign uio_oe  = 8'h80;  // uio[7] is the audio output
 
-  wire _unused = &{ena, uio_in, display_on, mute, rng, acc[11:0], 1'b0};
+  wire _unused = &{ena, uio_in, display_on, mute, rng, acc[7:0], 1'b0};
 
 endmodule

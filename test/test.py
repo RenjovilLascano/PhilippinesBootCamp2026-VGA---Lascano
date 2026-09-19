@@ -8,7 +8,7 @@
 # game step. It uses the chip's test mode:
 #   * hold ui[3:0] = 1111 while reset is released
 #   * the game then steps once per scanline (every 800 clocks)
-#   * uo_out shows debug byte number ui[7:4] (see the table in src/project.v)
+#   * uo_out shows debug byte number ui[6:4] (see the table in src/project.v)
 #
 # Timing: after reset is released the beam starts at hpos 0 of line 0.
 # Clock edge n (counting from 1) sees hpos = (n - 1) mod 800 before it
@@ -67,7 +67,7 @@ class Bench:
         self.dut.ui_in.value = value
 
     async def read(self, index):
-        """Debug byte `index` (ui[7:4] selects it, buttons stay as they are)."""
+        """Debug byte `index` (ui[6:4] selects it, buttons stay as they are)."""
         self.dut.ui_in.value = (index << 4) | self.buttons
         await Timer(1, unit="ns")
         value = int(self.dut.uo_out.value)
@@ -106,20 +106,20 @@ async def replay(bench, scenario, log):
             acc, pos = 0, 0
         else:
             acc += VECTORS["inc"]
-            if acc >= 1 << 16:
-                acc -= 1 << 16
+            if acc >= VECTORS["acc"]:
+                acc -= VECTORS["acc"]
                 pos = (pos + 1) % 32
 
         await bench.to_edge(LINE * (step + 1) + READ_AT)
         wanted = expect.get(step, wanted)
-        got = [await bench.read(i) for i in range(9)]
+        got = [await bench.read(i) for i in range(8)]
         got[0] &= ~0x20                       # `follow` is not in chip.js
         exp = list(wanted)
         exp[1] |= pos << 3
-        exp[3] |= (acc >> 12) << 4
+        exp[3] |= (acc >> 8) << 4
         if got != exp:
             names = ["err/play/frame", "pos/result", "note start/lane", "phase/len",
-                     "score lo", "score hi", "combo", "best", "misses"]
+                     "score lo", "score hi", "combo", "best"]
             diff = ", ".join(f"{n}: got {g:02x} want {e:02x}"
                              for n, g, e in zip(names, got, exp) if g != e)
             raise AssertionError(f"{scenario['name']} step {step}: {diff}")
